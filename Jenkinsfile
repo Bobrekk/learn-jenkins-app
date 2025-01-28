@@ -4,10 +4,11 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = 'ba44c41a-64bc-4c8e-b46e-a97ab798afdd'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        REACT_APP_VERSION = '1.2.3'
     }
 
     stages {
-        /*stage('Build') {
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -24,7 +25,7 @@ pipeline {
                     ls -la
                 '''
             }
-        }*/
+        }
 
         stage('Test') {
             parallel {
@@ -93,14 +94,6 @@ pipeline {
             post {
                 always {
                     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Staging E2E', reportTitles: '', useWrapperFileDirectly: true])
-                }
-            }
-        }
-
-        stage('Approval') {
-            steps{
-                timeout(time: 15, unit: 'MINUTES') {
-                    input message: 'Ready to deploy?', ok: 'Yes, I am sure I want to deploy!'
                 }
             }
         }
