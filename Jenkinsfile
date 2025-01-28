@@ -31,6 +31,7 @@ pipeline {
                 stage('Unit-Test') {
                     steps {
                         echo 'Testing...'
+                        echo 'Small change'
                     }
                     post {
                         always {
