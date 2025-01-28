@@ -24,8 +24,12 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing...'
-                sh 'test -f public/index.html'
-                sh 'npm test'
+                sh ''' 
+                    npm ci
+                    npm run build
+                    test -f public/index.html
+                    npm test
+                '''
             }
         }
     }
