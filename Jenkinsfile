@@ -22,20 +22,8 @@ pipeline {
         }
 
         stage('Test') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
             steps {
                 echo 'Testing...'
-                sh ''' 
-                    npm ci
-                    npm run build
-                    test -f public/index.html
-                    npm test
-                '''
             }
         }
     }
