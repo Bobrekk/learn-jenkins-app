@@ -81,6 +81,9 @@ pipeline {
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build
                 '''
+                timeout(time: 1, unit: 'MINUTES') {
+                    input message: 'Ready to deploy?', ok: 'Yes, I am sure I want to deploy!'
+                }
             }
         }
 
