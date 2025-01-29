@@ -25,7 +25,10 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
                         aws --version
-                        yum distro-sync
+                        echo "nameserver 8.8.8.8" | tee /etc/resolv.conf
+                        echo "nameserver 1.1.1.1" | tee -a /etc/resolv.conf
+                        nslookup amazonlinux.default.amazonaws.com
+                        sudo yum clean all && sudo yum makecache && sudo yum update
                         yum install jq -y
                         LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json | jq '.taskDefinition.revision')
                         echo $LATEST_TD_REVISION
