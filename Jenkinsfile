@@ -2,12 +2,35 @@ pipeline {
     agent any
 
     environment {
-        NETLIFY_SITE_ID = 'ba44c41a-64bc-4c8e-b46e-a97ab798afdd'
-        NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        /*NETLIFY_SITE_ID = 'ba44c41a-64bc-4c8e-b46e-a97ab798afdd'
+        NETLIFY_AUTH_TOKEN = credentials('netlify-token')*/
         REACT_APP_VERSION = "1.2.$BUILD_ID"
+        AWS_DEFAULT_REGION = 'eu-central-1'
     }
 
     stages {
+
+        stage('Deploy to AWS') {
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    reuseNode true
+                    args "--entrypoint='"
+                }
+            }
+            /*environment {
+                //AWS_S3_BUCKET = 'bobrektest'
+            }*/
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh '''
+                        aws --version 
+                        aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json
+                    '''
+                    //aws s3 sync build s3://$AWS_S3_BUCKET
+                }
+            }
+        }
 
         stage('Build') {
             agent {
@@ -28,28 +51,7 @@ pipeline {
             }
         }
 
-        stage('AWS') {
-            agent {
-                docker {
-                    image 'amazon/aws-cli'
-                    reuseNode true
-                    args "--entrypoint='"
-                }
-            }
-            environment {
-                AWS_S3_BUCKET = 'bobrektest'
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-                    sh '''
-                        aws --version 
-                        aws s3 sync build s3://$AWS_S3_BUCKET
-                    '''
-                }
-            }
-        }
-
-        stage('Test') {
+        /*stage('Test') {
             parallel {
                 stage('Unit-Test') {
                     steps {
@@ -86,9 +88,9 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
 
-        stage('Deploy-Staging') {
+        /*stage('Deploy-Staging') {
             agent {
                 docker {
                     image 'my-playwright'
@@ -116,9 +118,9 @@ pipeline {
                     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Staging E2E', reportTitles: '', useWrapperFileDirectly: true])
                 }
             }
-        }
+        }*/
 
-        stage('Deploy-Prod') {
+        /*stage('Deploy-Prod') {
             agent {
                 docker {
                     image 'my-playwright'
@@ -145,6 +147,6 @@ pipeline {
                     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Prod E2E', reportTitles: '', useWrapperFileDirectly: true])
                 }
             }
-        }
+        }*/
     }
 }
