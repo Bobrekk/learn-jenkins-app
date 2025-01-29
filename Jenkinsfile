@@ -27,7 +27,7 @@ pipeline {
                         aws --version
                         echo "nameserver 8.8.8.8" | tee /etc/resolv.conf
                         echo "nameserver 1.1.1.1" | tee -a /etc/resolv.conf
-                        yum clean all && sudo yum makecache && sudo yum update
+                        yum clean all && yum makecache && yum update
                         yum install jq -y
                         LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json | jq '.taskDefinition.revision')
                         echo $LATEST_TD_REVISION
